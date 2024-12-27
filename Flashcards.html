@@ -123,12 +123,17 @@
         // Create array [0, 1, 2, ..., n-1]
         const array = Array.from({ length: n }, (_, i) => i);
 
+        return shuffleArray(array);
+      };
+
+      const shuffleArray = (arr) => {
+        const array = [...arr];
+
         // Fisher-Yates shuffle algorithm
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [array[i], array[j]] = [array[j], array[i]]; // Swap elements
         }
-
         return array;
       };
 
@@ -159,9 +164,14 @@
         const [isFlipped, setIsFlipped] = React.useState(false);
         const [gameState, setGameState] = React.useState({});
         const [userAnswer, setUserAnswer] = React.useState("");
+        const [possibleOptions, setPossibleOptions] = React.useState([]);
+        const [answerState, setAnswerState] = React.useState(null);
 
         React.useEffect(() => {
           startNewGame();
+          setPossibleOptions(
+            shuffleArray(generateShuffledArray(amendments.length))
+          );
         }, []);
 
         React.useEffect(() => {
@@ -172,6 +182,11 @@
           const shuffledIndex =
             gameState.amendmentOrder[gameState.currentIndex];
           setCurrentAmendment(shuffledIndex);
+
+          const optionsLeft = gameState.amendmentOrder.slice(
+            gameState.currentIndex
+          );
+          setPossibleOptions(shuffleArray(optionsLeft));
         }, [gameState.currentIndex]);
 
         const randomAmendment = () => {
@@ -197,14 +212,20 @@
           setUserAnswer(event.target.value);
         };
 
+        const handleSelection = (answerIndex) => {
+          checkAnswer(answerIndex);
+        };
+
         const toggleFlip = () => {
           setIsFlipped(!isFlipped);
         };
 
-        const checkAnswer = () => {
-          const answerIndex = Object.values(amendments).findIndex(
-            (amendment) => amendment === userAnswer
-          );
+        const checkAnswer = (optionalAnswerIndex = undefined) => {
+          const answerIndex =
+            optionalAnswerIndex ??
+            Object.values(amendments).findIndex(
+              (amendment) => amendment === userAnswer
+            );
           console.debug("Answer index is " + answerIndex);
 
           const shuffledIndex =
@@ -214,11 +235,22 @@
             const newState = { ...gameState };
             newState.currentIndex++;
             setGameState(newState);
+            setAnswerState("Correct");
+          } else {
+            setAnswerState("Incorrect");
           }
         };
 
         return (
-          <div>
+          <div
+            style={{
+              overflowX: "hidden",
+              maxWidth: "60vw",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <h1>Constitutional Amendments</h1>
 
             {/*<div className="controls">
@@ -236,26 +268,68 @@
             {gameState?.currentIndex !== undefined && (
               <FlashCard
                 amendment={currentAmendment}
-                text={amendments[currentAmendment]}
+                text={Object.values(amendments)[currentAmendment]}
                 isFlipped={isFlipped}
                 onFlip={toggleFlip}
               />
             )}
-            <input
-              type="text"
-              name="example"
-              list="exampleList"
-              onChange={handleAnswer}
-              style={{ width: "500px" }}
-            />
-            <datalist id="exampleList">
-              {Object.values(amendments).map((amendmentText, index) => (
-                <option key={index} value={amendmentText} />
-              ))}
-            </datalist>
-            <button onClick={checkAnswer}>Check Answer</button>
+            <div style={{ minWidth: "50vw", marginTop: "10px" }}>
+              <input
+                type="text"
+                name="example"
+                list="exampleList"
+                onChange={handleAnswer}
+                style={{ width: "70%" }}
+              />
+              <datalist id="exampleList">
+                {Object.values(amendments).map((amendmentText, index) => (
+                  <option key={index} value={amendmentText} />
+                ))}
+              </datalist>
+              <button style={{ width: "17%" }} onClick={checkAnswer}>
+                Check Answer
+              </button>
+            </div>
             <br />
             <button onClick={getNewGameState}>New Game</button>
+            {answerState !== null && (
+              <div
+                role="alert"
+                style={{
+                  border: "2px solid black",
+                  borderRadius: "5px",
+                  textAlign: "center",
+                  padding: "5px 10px",
+                  margin: "10px",
+                }}
+              >
+                {answerState}
+              </div>
+            )}
+            <div style={{ width: "60vw" }}>
+              <div style={{ overflowX: "scroll", display: "flex" }}>
+                {possibleOptions.map((optionIndex, index) => {
+                  console.debug(optionIndex, "ind");
+                  return (
+                    <div
+                      key={index}
+                      style={{
+                        alignContent: "center",
+                        textAlign: "center",
+                        minWidth: "300px",
+                        minHeight: "225px",
+                        border: "2px solid black",
+                        marginInline: "10px",
+                        marginTop: "10px",
+                      }}
+                      onClick={() => handleSelection(optionIndex)}
+                    >
+                      {Object.values(amendments)[optionIndex]}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         );
       };
