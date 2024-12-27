@@ -17,10 +17,6 @@
         padding: 20px;
       }
 
-      .controls {
-        margin-bottom: 20px;
-      }
-
       .card {
         background: #fff;
         border-radius: 10px;
@@ -71,14 +67,29 @@
         transform: rotateY(180deg);
       }
 
-      select {
+      .amendment-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .app-container {
+        overflow-x: hidden;
+        max-width: 60vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .answer-input {
+        width: 70%;
         padding: 8px;
         font-size: 16px;
         border-radius: 5px;
         margin-right: 10px;
       }
 
-      button {
+      .button {
         padding: 8px 16px;
         font-size: 16px;
         border: none;
@@ -89,19 +100,141 @@
         margin: 0 5px;
       }
 
-      button:hover {
+      .button:hover {
         background: #357abd;
       }
 
-      .amendment-number {
-        font-size: 24px;
+      .answer-status {
+        border: 2px solid;
+        border-radius: 5px;
+        text-align: center;
+        padding: 5px 10px;
+        margin: 10px;
+        animation: fadeIn 0.5s ease-in-out;
         font-weight: bold;
-        margin-bottom: 10px;
+      }
+
+      .answer-status.correct {
+        border-color: #4caf50;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        animation: correctAnswer 0.5s ease-in-out;
+      }
+
+      .answer-status.incorrect {
+        border-color: #f44336;
+        background-color: #ffebee;
+        color: #c62828;
+        animation: incorrectAnswer 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes correctAnswer {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes incorrectAnswer {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-5px);
+        }
+        40%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      .scores-container {
+        display: flex;
+        gap: 20px;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .score-item {
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+        background: white;
+        flex: 1;
+      }
+
+      .score-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .score-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #4a90e2;
+      }
+
+      .options-container {
+        width: 60vw;
+        margin-top: 20px;
+      }
+
+      .options-scroll {
+        overflow-x: scroll;
+        display: flex;
+      }
+
+      .option-card {
+        align-content: center;
+        text-align: center;
+        min-width: 300px;
+        min-height: 225px;
+        border: 2px solid black;
+        margin: 10px;
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .option-card:hover {
+        background-color: #f0f0f0;
+      }
+
+      .score-display {
+        font-size: 18px;
+        margin: 10px 0;
+        font-weight: bold;
+        color: #4a90e2;
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
+
     <script type="text/babel">
       const amendments = {
         First: "Protects freedom of speech, religion, press, and assembly",
@@ -120,39 +253,34 @@
       };
 
       const generateShuffledArray = (n) => {
-        // Create array [0, 1, 2, ..., n-1]
         const array = Array.from({ length: n }, (_, i) => i);
-
         return shuffleArray(array);
       };
 
       const shuffleArray = (arr) => {
         const array = [...arr];
-
-        // Fisher-Yates shuffle algorithm
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+          [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
       };
 
-      const getNewGameState = () => {
-        const length = Object.keys(amendments).length;
-        const gameState = {
-          currentIndex: 0,
-          maximumIndex: length,
-          amendmentOrder: generateShuffledArray(length),
-        };
-        console.log(gameState);
-        return gameState;
-      };
+      const getNewGameState = () => ({
+        currentIndex: 0,
+        maximumIndex: Object.keys(amendments).length,
+        amendmentOrder: generateShuffledArray(Object.keys(amendments).length),
+        correctAnswers: 0,
+        totalAttempts: 0,
+      });
 
-      const FlashCard = ({ amendment, text, isFlipped, onFlip }) => (
+      const FlashCard = ({ amendmentIndex, text, isFlipped, onFlip }) => (
         <div className={`card ${isFlipped ? "flipped" : ""}`} onClick={onFlip}>
           <div className="card-front">
             {!isFlipped && (
-              <div className="amendment-number">{amendment + 1} Amendment</div>
+              <div className="amendment-number">
+                {Object.keys(amendments)[amendmentIndex]} Amendment
+              </div>
             )}
           </div>
           <div className="card-back">{isFlipped && <div>{text}</div>}</div>
@@ -160,53 +288,32 @@
       );
 
       const AmendmentApp = () => {
-        const [currentAmendment, setCurrentAmendment] = React.useState("");
+        const [currentAmendmentIndex, setCurrentAmendmentIndex] =
+          React.useState("");
         const [isFlipped, setIsFlipped] = React.useState(false);
-        const [gameState, setGameState] = React.useState({});
+        const [gameState, setGameState] = React.useState(getNewGameState());
         const [userAnswer, setUserAnswer] = React.useState("");
         const [possibleOptions, setPossibleOptions] = React.useState([]);
         const [answerState, setAnswerState] = React.useState(null);
 
         React.useEffect(() => {
-          startNewGame();
           setPossibleOptions(
             shuffleArray(generateShuffledArray(amendments.length))
           );
         }, []);
 
         React.useEffect(() => {
-          if (!gameState.amendmentOrder) {
-            return;
-          }
-          const amendmentList = Object.keys(amendments);
+          if (!gameState.amendmentOrder) return;
+
           const shuffledIndex =
             gameState.amendmentOrder[gameState.currentIndex];
-          setCurrentAmendment(shuffledIndex);
+          setCurrentAmendmentIndex(shuffledIndex);
 
           const optionsLeft = gameState.amendmentOrder.slice(
             gameState.currentIndex
           );
           setPossibleOptions(shuffleArray(optionsLeft));
         }, [gameState.currentIndex]);
-
-        const randomAmendment = () => {
-          const amendmentList = Object.keys(amendments);
-          const random =
-            amendmentList[Math.floor(Math.random() * amendmentList.length)];
-          setCurrentAmendment(random);
-          setIsFlipped(false);
-        };
-
-        const startNewGame = () => {
-          setGameState(getNewGameState());
-        };
-
-        const handleSelect = (event) => {
-          if (event.target.value) {
-            setCurrentAmendment(event.target.value);
-            setIsFlipped(false);
-          }
-        };
 
         const handleAnswer = (event) => {
           setUserAnswer(event.target.value);
@@ -226,108 +333,105 @@
             Object.values(amendments).findIndex(
               (amendment) => amendment === userAnswer
             );
-          console.debug("Answer index is " + answerIndex);
 
           const shuffledIndex =
             gameState.amendmentOrder[gameState.currentIndex];
-          console.debug("Shuffled index is " + shuffledIndex);
-          if (shuffledIndex === answerIndex) {
-            const newState = { ...gameState };
-            newState.currentIndex++;
-            setGameState(newState);
-            setAnswerState("Correct");
-          } else {
-            setAnswerState("Incorrect");
-          }
+          const isCorrect = shuffledIndex === answerIndex;
+
+          setGameState((prev) => ({
+            ...prev,
+            currentIndex: isCorrect ? prev.currentIndex + 1 : prev.currentIndex,
+            correctAnswers: isCorrect
+              ? prev.correctAnswers + 1
+              : prev.correctAnswers,
+            totalAttempts: prev.totalAttempts + 1,
+          }));
+
+          setAnswerState(isCorrect ? "Correct" : "Incorrect");
+        };
+
+        const startNewGame = () => {
+          setGameState(getNewGameState());
+          setAnswerState(null);
+          setIsFlipped(false);
         };
 
         return (
-          <div
-            style={{
-              overflowX: "hidden",
-              maxWidth: "60vw",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
+          <div className="app-container">
             <h1>Constitutional Amendments</h1>
 
-            {/*<div className="controls">
-                     <select value={currentAmendment} onChange={handleSelect}>
-                       <option value="">Select Amendment</option>
-                       {Object.keys(amendments).map((amendment) => (
-                         <option key={amendment} value={amendment}>
-                           {amendment} Amendment
-                         </option>
-                       ))}
-                     </select>
-                     <button onClick={randomAmendment}>Random Amendment</button>
-                   </div>*/}
+            <div className="scores-container">
+              <div className="score-item">
+                <div className="score-label">Accuracy</div>
+                <div className="score-value">
+                  {gameState.correctAnswers} / {gameState.totalAttempts}
+                  {gameState.totalAttempts > 0 &&
+                    ` (${Math.round(
+                      (gameState.correctAnswers / gameState.totalAttempts) * 100
+                    )}%)`}
+                </div>
+              </div>
+              <div className="score-item">
+                <div className="score-label">Progress</div>
+                <div className="score-value">
+                  {gameState.currentIndex} / {gameState.maximumIndex}
+                  {gameState.maximumIndex > 0 &&
+                    ` (${Math.round(
+                      (gameState.currentIndex / gameState.maximumIndex) * 100
+                    )}%)`}
+                </div>
+              </div>
+            </div>
 
             {gameState?.currentIndex !== undefined && (
               <FlashCard
-                amendment={currentAmendment}
-                text={Object.values(amendments)[currentAmendment]}
+                amendmentIndex={currentAmendmentIndex}
+                text={Object.values(amendments)[currentAmendmentIndex]}
                 isFlipped={isFlipped}
                 onFlip={toggleFlip}
               />
             )}
-            <div style={{ minWidth: "50vw", marginTop: "10px" }}>
+
+            {/*<div style={{ marginTop: "20px" }}>
               <input
                 type="text"
-                name="example"
+                className="answer-input"
                 list="exampleList"
                 onChange={handleAnswer}
-                style={{ width: "70%" }}
               />
               <datalist id="exampleList">
                 {Object.values(amendments).map((amendmentText, index) => (
                   <option key={index} value={amendmentText} />
                 ))}
               </datalist>
-              <button style={{ width: "17%" }} onClick={checkAnswer}>
+              <button className="button" onClick={() => checkAnswer()}>
                 Check Answer
               </button>
             </div>
-            <br />
-            <button onClick={getNewGameState}>New Game</button>
-            {answerState !== null && (
-              <div
-                role="alert"
-                style={{
-                  border: "2px solid black",
-                  borderRadius: "5px",
-                  textAlign: "center",
-                  padding: "5px 10px",
-                  margin: "10px",
-                }}
-              >
-                {answerState}
+
+            <button className="button" onClick={startNewGame}>
+              New Game
+            </button>*/}
+
+            {answerState && (
+              <div className={`answer-status ${answerState.toLowerCase()}`}>
+                {answerState === "Correct"
+                  ? "✓ Correct!"
+                  : "✗ Incorrect - Try Again"}
               </div>
             )}
-            <div style={{ width: "60vw" }}>
-              <div style={{ overflowX: "scroll", display: "flex" }}>
-                {possibleOptions.map((optionIndex, index) => {
-                  console.debug(optionIndex, "ind");
-                  return (
-                    <div
-                      key={index}
-                      style={{
-                        alignContent: "center",
-                        textAlign: "center",
-                        minWidth: "300px",
-                        minHeight: "225px",
-                        border: "2px solid black",
-                        marginInline: "10px",
-                        marginTop: "10px",
-                      }}
-                      onClick={() => handleSelection(optionIndex)}
-                    >
-                      {Object.values(amendments)[optionIndex]}
-                    </div>
-                  );
-                })}
+
+            <div className="options-container">
+              <div className="options-scroll">
+                {possibleOptions.map((optionIndex, index) => (
+                  <div
+                    key={index}
+                    className="option-card"
+                    onClick={() => handleSelection(optionIndex)}
+                  >
+                    {Object.values(amendments)[optionIndex]}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
