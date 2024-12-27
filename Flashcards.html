@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Constitutional Amendments Flash Cards</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #f0f0f0;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .controls {
+        margin-bottom: 20px;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 400px;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s;
+        transform-style: preserve-3d;
+        background-image: linear-gradient(
+          45deg,
+          #f9f5eb 25%,
+          #f5e6d3 25%,
+          #f5e6d3 50%,
+          #f9f5eb 50%,
+          #f9f5eb 75%,
+          #f5e6d3 75%,
+          #f5e6d3 100%
+        );
+        background-size: 20px 20px;
+      }
+
+      .card.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+      }
+
+      select {
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      button {
+        padding: 8px 16px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background: #4a90e2;
+        color: white;
+        cursor: pointer;
+        margin: 0 5px;
+      }
+
+      button:hover {
+        background: #357abd;
+      }
+
+      .amendment-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const amendments = {
+        First: "Protects freedom of speech, religion, press, and assembly",
+        Second: "Right to bear arms",
+        Third: "No quartering of soldiers",
+        Fourth: "Protection against unreasonable search and seizure",
+        Fifth:
+          "Right to due process, protection against self-incrimination and double jeopardy",
+        Sixth: "Right to speedy trial by jury",
+        Seventh: "Right to trial by jury in civil cases",
+        Eighth: "Prohibition of excessive bail and cruel punishment",
+        Ninth:
+          "Protection of rights not specifically enumerated in the Constitution",
+        Tenth:
+          "Powers not delegated to the United States are reserved to the states",
+      };
+
+      const generateShuffledArray = (n) => {
+        // Create array [0, 1, 2, ..., n-1]
+        const array = Array.from({ length: n }, (_, i) => i);
+
+        // Fisher-Yates shuffle algorithm
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+
+        return array;
+      };
+
+      const getNewGameState = () => {
+        const length = Object.keys(amendments).length;
+        const gameState = {
+          currentIndex: 0,
+          maximumIndex: length,
+          amendmentOrder: generateShuffledArray(length),
+        };
+        console.log(gameState);
+        return gameState;
+      };
+
+      const FlashCard = ({ amendment, text, isFlipped, onFlip }) => (
+        <div className={`card ${isFlipped ? "flipped" : ""}`} onClick={onFlip}>
+          <div className="card-front">
+            {!isFlipped && (
+              <div className="amendment-number">{amendment + 1} Amendment</div>
+            )}
+          </div>
+          <div className="card-back">{isFlipped && <div>{text}</div>}</div>
+        </div>
+      );
+
+      const AmendmentApp = () => {
+        const [currentAmendment, setCurrentAmendment] = React.useState("");
+        const [isFlipped, setIsFlipped] = React.useState(false);
+        const [gameState, setGameState] = React.useState({});
+        const [userAnswer, setUserAnswer] = React.useState("");
+
+        React.useEffect(() => {
+          startNewGame();
+        }, []);
+
+        React.useEffect(() => {
+          if (!gameState.amendmentOrder) {
+            return;
+          }
+          const amendmentList = Object.keys(amendments);
+          const shuffledIndex =
+            gameState.amendmentOrder[gameState.currentIndex];
+          setCurrentAmendment(shuffledIndex);
+        }, [gameState.currentIndex]);
+
+        const randomAmendment = () => {
+          const amendmentList = Object.keys(amendments);
+          const random =
+            amendmentList[Math.floor(Math.random() * amendmentList.length)];
+          setCurrentAmendment(random);
+          setIsFlipped(false);
+        };
+
+        const startNewGame = () => {
+          setGameState(getNewGameState());
+        };
+
+        const handleSelect = (event) => {
+          if (event.target.value) {
+            setCurrentAmendment(event.target.value);
+            setIsFlipped(false);
+          }
+        };
+
+        const handleAnswer = (event) => {
+          setUserAnswer(event.target.value);
+        };
+
+        const toggleFlip = () => {
+          setIsFlipped(!isFlipped);
+        };
+
+        const checkAnswer = () => {
+          const answerIndex = Object.values(amendments).findIndex(
+            (amendment) => amendment === userAnswer
+          );
+          console.debug("Answer index is " + answerIndex);
+
+          const shuffledIndex =
+            gameState.amendmentOrder[gameState.currentIndex];
+          console.debug("Shuffled index is " + shuffledIndex);
+          if (shuffledIndex === answerIndex) {
+            const newState = { ...gameState };
+            newState.currentIndex++;
+            setGameState(newState);
+          }
+        };
+
+        return (
+          <div>
+            <h1>Constitutional Amendments</h1>
+
+            {/*<div className="controls">
+                     <select value={currentAmendment} onChange={handleSelect}>
+                       <option value="">Select Amendment</option>
+                       {Object.keys(amendments).map((amendment) => (
+                         <option key={amendment} value={amendment}>
+                           {amendment} Amendment
+                         </option>
+                       ))}
+                     </select>
+                     <button onClick={randomAmendment}>Random Amendment</button>
+                   </div>*/}
+
+            {gameState?.currentIndex !== undefined && (
+              <FlashCard
+                amendment={currentAmendment}
+                text={amendments[currentAmendment]}
+                isFlipped={isFlipped}
+                onFlip={toggleFlip}
+              />
+            )}
+            <input
+              type="text"
+              name="example"
+              list="exampleList"
+              onChange={handleAnswer}
+              style={{ width: "500px" }}
+            />
+            <datalist id="exampleList">
+              {Object.values(amendments).map((amendmentText, index) => (
+                <option key={index} value={amendmentText} />
+              ))}
+            </datalist>
+            <button onClick={checkAnswer}>Check Answer</button>
+            <br />
+            <button onClick={getNewGameState}>New Game</button>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<AmendmentApp />);
+    </script>
+  </body>
+</html>
