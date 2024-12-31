@@ -407,9 +407,11 @@
 
                 {answerState && (
                   <div className={`answer-status ${answerState.toLowerCase()}`}>
-                    {answerState === "Correct"
-                      ? "✓ Correct!"
-                      : "✗ Incorrect - Try Again"}
+                    {answerState === "Correct" ? (
+                      <span>&#10004; Correct!</span>
+                    ) : (
+                      <span>&#10007; Incorrect - Try Again</span>
+                    )}
                   </div>
                 )}
 
