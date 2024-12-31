@@ -1,168 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constitution Learning Games</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Early American Documents Learning Games</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-        .container {
-            max-width: 1200px;
-            width: 100%;
-        }
+      .container {
+        max-width: 1200px;
+        width: 100%;
+      }
 
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 40px;
-        }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
+      h2 {
+        color: #34495e;
+        text-align: center;
+        margin: 40px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #bdc3c7;
+      }
+
+      .section-description {
+        text-align: center;
+        color: #555;
+        margin-bottom: 30px;
+        font-size: 1.1em;
+        line-height: 1.5;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 20px;
+        margin-bottom: 40px;
+      }
+
+      .game-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        background-image: linear-gradient(
+          45deg,
+          #f9f5eb 25%,
+          #f5e6d3 25%,
+          #f5e6d3 50%,
+          #f9f5eb 50%,
+          #f9f5eb 75%,
+          #f5e6d3 75%,
+          #f5e6d3 100%
+        );
+        background-size: 20px 20px;
+        border: 1px solid #e0d5c5;
+      }
+
+      .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .game-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      .game-description {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #34495e;
+        flex-grow: 1;
+      }
+
+      .difficulty {
+        margin-top: 15px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        width: fit-content;
+      }
+
+      .beginner {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .intermediate {
+        background-color: #fff3e0;
+        color: #ef6c00;
+      }
+
+      .advanced {
+        background-color: #fce4ec;
+        color: #c2185b;
+      }
+
+      .play-button {
+        background-color: #4a90e2;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      .game-card:hover .play-button {
+        background-color: #357abd;
+      }
+
+      .section {
+        margin-bottom: 60px;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
         .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 20px;
+          grid-template-columns: 1fr;
+          padding: 10px;
         }
-
-        .game-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            background-image: linear-gradient(
-                45deg,
-                #f9f5eb 25%,
-                #f5e6d3 25%,
-                #f5e6d3 50%,
-                #f9f5eb 50%,
-                #f9f5eb 75%,
-                #f5e6d3 75%,
-                #f5e6d3 100%
-            );
-            background-size: 20px 20px;
-            border: 1px solid #e0d5c5;
-        }
-
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .game-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .game-description {
-            font-size: 16px;
-            line-height: 1.5;
-            color: #34495e;
-            flex-grow: 1;
-        }
-
-        .difficulty {
-            margin-top: 15px;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            width: fit-content;
-        }
-
-        .beginner {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .intermediate {
-            background-color: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .advanced {
-            background-color: #fce4ec;
-            color: #c2185b;
-        }
-
-        .play-button {
-            background-color: #4a90e2;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .game-card:hover .play-button {
-            background-color: #357abd;
-        }
-
-        @media (max-width: 768px) {
-            .games-grid {
-                grid-template-columns: 1fr;
-                padding: 10px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Constitutional Learning Games</h1>
-        
+      <h1>Early American Documents Knowledge Games</h1>
+
+      <div class="section">
+        <h2>The Constitution</h2>
+        <p class="section-description">
+          Master the fundamental document that established American democracy
+          through these interactive games covering the Articles, Bill of Rights,
+          and subsequent Amendments.
+        </p>
+
         <div class="games-grid">
-            <a href="./articles.html" class="game-card">
-                <div class="game-title">Articles of the Constitution</div>
-                <div class="game-description">
-                    Learn about the seven articles that form the foundation of the U.S. Constitution. 
-                    Master the basic structure of the government, including the separation of powers 
-                    between the legislative, executive, and judicial branches.
-                </div>
-                <div class="difficulty beginner">Beginner Friendly</div>
-                <div class="play-button">Play Now</div>
-            </a>
+          <a href="./articles.html" class="game-card">
+            <div class="game-title">Articles of the Constitution</div>
+            <div class="game-description">
+              Learn about the seven articles that form the foundation of the
+              U.S. Constitution. Master the basic structure of the government,
+              including the separation of powers between the legislative,
+              executive, and judicial branches.
+            </div>
+            <div class="difficulty beginner">Beginner Friendly</div>
+            <div class="play-button">Play Now</div>
+          </a>
 
-            <a href="./bill-of-rights.html" class="game-card">
-                <div class="game-title">Bill of Rights</div>
-                <div class="game-description">
-                    Study the first ten amendments to the Constitution, which protect fundamental 
-                    rights like freedom of speech, religion, and due process. Perfect for understanding 
-                    the basic civil liberties guaranteed to all Americans.
-                </div>
-                <div class="difficulty intermediate">Intermediate</div>
-                <div class="play-button">Play Now</div>
-            </a>
+          <a href="./bill-of-rights.html" class="game-card">
+            <div class="game-title">Bill of Rights</div>
+            <div class="game-description">
+              Study the first ten amendments to the Constitution, which protect
+              fundamental rights like freedom of speech, religion, and due
+              process. Perfect for understanding the basic civil liberties
+              guaranteed to all Americans.
+            </div>
+            <div class="difficulty intermediate">Intermediate</div>
+            <div class="play-button">Play Now</div>
+          </a>
 
-            <a href="./later-amendments.html" class="game-card">
-                <div class="game-title">Later Amendments</div>
-                <div class="game-description">
-                    Explore amendments 11-27, covering crucial developments in American history 
-                    from the abolition of slavery to voting rights. Learn how the Constitution 
-                    has evolved to meet the nation's changing needs.
-                </div>
-                <div class="difficulty advanced">Advanced</div>
-                <div class="play-button">Play Now</div>
-            </a>
+          <a href="./later-amendments.html" class="game-card">
+            <div class="game-title">Later Amendments</div>
+            <div class="game-description">
+              Explore amendments 11-27, covering crucial developments in
+              American history from the abolition of slavery to voting rights.
+              Learn how the Constitution has evolved to meet the nation's
+              changing needs.
+            </div>
+            <div class="difficulty advanced">Advanced</div>
+            <div class="play-button">Play Now</div>
+          </a>
         </div>
+      </div>
+
+      <div class="section">
+        <h2>Declaration of Independence</h2>
+        <p class="section-description">
+          Understand the historic document that launched American independence
+          through games exploring its key components, grievances against King
+          George III, and the philosophical principles that inspired a
+          revolution.
+        </p>
+
+        <div class="games-grid">
+          <a href="./grievances.html" class="game-card">
+            <div class="game-title">Colonial Grievances</div>
+            <div class="game-description">
+              Study the specific complaints against King George III that
+              justified the American Revolution. Learn about the colonial
+              grievances that pushed the colonies toward independence and shaped
+              the founding principles of the new nation.
+            </div>
+            <div class="difficulty intermediate">Intermediate</div>
+            <div class="play-button">Play Now</div>
+          </a>
+
+          <!-- Placeholder for future games
+                <a href="./declaration-principles.html" class="game-card">
+                    <div class="game-title">Founding Principles</div>
+                    <div class="game-description">
+                        Explore the philosophical principles and self-evident truths that form the 
+                        foundation of the Declaration. Understand the ideas that shaped America's 
+                        vision of liberty and human rights.
+                    </div>
+                    <div class="difficulty advanced">Advanced</div>
+                    <div class="play-button">Coming Soon</div>
+                </a>
+                -->
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
