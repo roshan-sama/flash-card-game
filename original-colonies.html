@@ -74,9 +74,13 @@
         margin-bottom: 10px;
       }
 
+      .colony-name {
+        font-size: 24px;
+        color: #222;
+      }
       .subtitle {
         font-size: 18px;
-        color: #666;
+        color: #444;
       }
 
       .app-container {
@@ -263,57 +267,57 @@
 
     <script type="text/babel">
       const colonies = {
-        "1607": {
+        1607: {
           name: "Virginia",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1620": {
+        1620: {
           name: "Massachusetts",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1623": {
+        1623: {
           name: "New Hampshire",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1634": {
+        1634: {
           name: "Maryland",
-          type: "Proprietary Colony"
+          type: "Proprietary Colony",
         },
-        "1636": {
+        "1636 - C": {
           name: "Connecticut",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1636": {
+        "1636 - R": {
           name: "Rhode Island",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1638": {
+        1638: {
           name: "Delaware",
-          type: "Proprietary Colony"
+          type: "Proprietary Colony",
         },
-        "1653": {
+        "1663 - N": {
           name: "North Carolina",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1663": {
+        "1663 - S": {
           name: "South Carolina",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1664": {
-          name: "New Jersey",
-          type: "Crown Colony"
-        },
-        "1664": {
+        1664: {
           name: "New York",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
-        "1682": {
+        1665: {
+          name: "New Jersey",
+          type: "Crown Colony",
+        },
+        1681: {
           name: "Pennsylvania",
-          type: "Proprietary Colony"
+          type: "Proprietary Colony",
         },
-        "1732": {
+        1732: {
           name: "Georgia",
-          type: "Crown Colony"
+          type: "Crown Colony",
         },
       };
 
@@ -343,22 +347,20 @@
         <div className={`card ${isFlipped ? "flipped" : ""}`} onClick={onFlip}>
           <div className="card-front">
             {!isFlipped && (
-              <>
-                <div className="date">
-                  {Object.keys(colonies)[colonyIndex]}
-                </div>
-                <div className="subtitle">
-                  Year of Establishment
-                </div>
-              </>
+              <div>
+                <div className="date">{Object.keys(colonies)[colonyIndex]}</div>
+                <br />
+                <div className="subtitle">Year of Establishment</div>
+              </div>
             )}
           </div>
           <div className="card-back">
             {isFlipped && (
-              <>
+              <div>
                 <div className="colony-name">{colony.name}</div>
+                <br />
                 <div className="subtitle">{colony.type}</div>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -400,7 +402,9 @@
           setGameState((prev) => ({
             ...prev,
             currentIndex: isCorrect ? prev.currentIndex + 1 : prev.currentIndex,
-            correctAnswers: isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers,
+            correctAnswers: isCorrect
+              ? prev.correctAnswers + 1
+              : prev.correctAnswers,
             totalAttempts: prev.totalAttempts + 1,
           }));
 
@@ -458,8 +462,8 @@
                 {answerState && (
                   <div className={`answer-status ${answerState.toLowerCase()}`}>
                     {answerState === "Correct"
-                      ? <span>&#10004; Correct!</span>
-                      : <span>&#10007; Incorrect - Try Again</span>
+                      ? "✓ Correct!"
+                      : "✗ Incorrect - Try Again"}
                   </div>
                 )}
 
