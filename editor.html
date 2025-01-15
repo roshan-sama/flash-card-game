@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flashcard Content Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f0f0f0;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .table-container {
+        margin: 20px 0;
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid #ddd;
+      }
+      th {
+        background-color: #f5f5f5;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #357abd;
+      }
+      .button-container {
+        margin-top: 20px;
+        text-align: center;
+      }
+      .row-actions {
+        white-space: nowrap;
+      }
+      #downloadLink {
+        display: none;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .instructions {
+        background: #e8f5e9;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Flashcard Content Editor</h1>
+
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+          <li>Add your flashcard content using the table below</li>
+          <li>Click "Generate JSON" to create your flashcard data file</li>
+          <li>
+            Save the generated file in the same folder as your flashcard viewer
+          </li>
+          <li>Name the file "flashcards.json"</li>
+        </ol>
+      </div>
+
+      <div class="table-container">
+        <table id="contentTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Content</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" placeholder="Enter title" /></td>
+              <td><input type="text" placeholder="Enter content" /></td>
+              <td class="row-actions">
+                <button onclick="deleteRow(this)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="button-container">
+        <button onclick="addRow()">Add Row</button>
+        <button onclick="generateJSON()">Generate JSON</button>
+      </div>
+
+      <a id="downloadLink" download="flashcards.json">Download JSON File</a>
+    </div>
+
+    <script>
+      function addRow() {
+        const tbody = document.querySelector("#contentTable tbody");
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+                <td><input type="text" placeholder="Enter title"></td>
+                <td><input type="text" placeholder="Enter content"></td>
+                <td class="row-actions">
+                    <button onclick="deleteRow(this)">Delete</button>
+                </td>
+            `;
+        tbody.appendChild(newRow);
+      }
+
+      function deleteRow(button) {
+        const row = button.closest("tr");
+        const tbody = row.closest("tbody");
+        if (tbody.children.length > 1) {
+          row.remove();
+        }
+      }
+
+      function generateJSON() {
+        const rows = document.querySelectorAll("#contentTable tbody tr");
+        const flashcards = {};
+
+        rows.forEach((row) => {
+          const inputs = row.querySelectorAll("input");
+          const title = inputs[0].value.trim();
+          const content = inputs[1].value.trim();
+
+          if (title && content) {
+            flashcards[title] = content;
+          }
+        });
+
+        const jsonString = JSON.stringify(flashcards, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const downloadLink = document.getElementById("downloadLink");
+        downloadLink.href = url;
+        downloadLink.style.display = "block";
+        downloadLink.click();
+
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
