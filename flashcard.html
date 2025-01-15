@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flashcards</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #f0f0f0;
+        min-height: 100vh;
+        margin: 0;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        text-align: center;
+        margin: 10px 0;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: min(90vw, 400px);
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s;
+        transform-style: preserve-3d;
+        background-image: linear-gradient(
+          45deg,
+          #f9f5eb 25%,
+          #f5e6d3 25%,
+          #f5e6d3 50%,
+          #f9f5eb 50%,
+          #f9f5eb 75%,
+          #f5e6d3 75%,
+          #f5e6d3 100%
+        );
+        background-size: 20px 20px;
+        margin: 15px auto;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .card.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        box-sizing: border-box;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+      }
+
+      .amendment-number {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      .button {
+        padding: 12px 24px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 8px;
+        background: #4a90e2;
+        color: white;
+        cursor: pointer;
+        margin: 5px;
+        touch-action: manipulation;
+      }
+
+      .button:hover {
+        background: #357abd;
+      }
+
+      .answer-status {
+        border: 2px solid;
+        border-radius: 8px;
+        text-align: center;
+        padding: 10px 15px;
+        margin: 10px;
+        animation: fadeIn 0.5s ease-in-out;
+        font-weight: bold;
+        width: fit-content;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+      }
+
+      .answer-status.correct {
+        border-color: #4caf50;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .answer-status.incorrect {
+        border-color: #f44336;
+        background-color: #ffebee;
+        color: #c62828;
+      }
+
+      .scores-container {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: min(90vw, 400px);
+        flex-wrap: wrap;
+      }
+
+      .score-item {
+        text-align: center;
+        padding: 8px;
+        border-radius: 5px;
+        background: white;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .score-label {
+        font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .score-value {
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+        font-weight: bold;
+        color: #4a90e2;
+      }
+
+      .options-container {
+        width: 100vw;
+        margin-top: 20px;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+
+      .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        width: 100%;
+      }
+
+      .option-card {
+        text-align: center;
+        min-height: 100px;
+        padding: 15px;
+        cursor: pointer;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(
+          135deg,
+          #f5e6d3 25%,
+          #f2d9bc 25%,
+          #f2d9bc 50%,
+          #f5e6d3 50%,
+          #f5e6d3 75%,
+          #f2d9bc 75%,
+          #f2d9bc 100%
+        );
+        background-size: 16px 16px;
+        border: 1px solid #d4b894;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        line-height: 1.4;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .option-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .option-card:active {
+        transform: translateY(0px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes correctAnswer {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes incorrectAnswer {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-5px);
+        }
+        40%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* Mobile-specific adjustments */
+      @media (max-width: 768px) {
+        body {
+          padding: 5px;
+        }
+
+        .card {
+          margin: 10px auto;
+        }
+
+        .options-grid {
+          grid-template-columns: 1fr;
+          padding: 0 5px;
+        }
+
+        .score-item {
+          flex: 1 1 45%;
+        }
+      }
+
+      /* Disable hover effects on touch devices */
+      @media (hover: none) {
+        .option-card:hover {
+          transform: none;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      details.instructions {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        width: 90%;
+        max-width: 600px;
+      }
+
+      details.instructions summary {
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      details.instructions ul {
+        margin: 10px 0;
+        padding-left: 20px;
+      }
+
+      details.instructions li {
+        margin: 8px 0;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <input type="file" id="jsonInput" accept=".json" style="display: none" />
+
+    <script type="text/babel">
+      const getNewGameState = (flashCards) => ({
+        currentIndex: 0,
+        maximumIndex: Object.keys(flashCards).length,
+        amendmentOrder: generateShuffledArray(Object.keys(amendments).length),
+        correctAnswers: 0,
+        totalAttempts: 0,
+      });
+
+      const FlashCard = ({
+        amendmentIndex,
+        text,
+        isFlipped,
+        onFlip,
+        flashCards,
+      }) => {
+        console.log(flashCards, "ffc");
+        return (
+          <div
+            className={`card ${isFlipped ? "flipped" : ""}`}
+            onClick={onFlip}
+          >
+            <div className="card-front">
+              {!isFlipped && (
+                <div className="amendment-number">
+                  {Object.keys(flashCards)[amendmentIndex]}
+                </div>
+              )}
+            </div>
+            <div className="card-back">{isFlipped && <div>{text}</div>}</div>
+          </div>
+        );
+      };
+
+      const FlashCardApp = () => {
+        const [flashcards, setFlashcards] = React.useState(null);
+        const [error, setError] = React.useState(null);
+        const [currentAmendmentIndex, setCurrentAmendmentIndex] =
+          React.useState("");
+        const [isFlipped, setIsFlipped] = React.useState(false);
+        const [gameState, setGameState] = React.useState(null);
+        const [userAnswer, setUserAnswer] = React.useState("");
+        const [possibleOptions, setPossibleOptions] = React.useState([]);
+        const [answerState, setAnswerState] = React.useState(null);
+
+        // Function to handle file selection
+        const handleFileSelect = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const content = JSON.parse(e.target.result);
+                setFlashcards(content);
+                initializeGame(content);
+                setError(null);
+              } catch (err) {
+                setError("Error reading file: Invalid JSON format");
+              }
+            };
+            reader.onerror = () => {
+              setError("Error reading file");
+            };
+            reader.readAsText(file);
+          }
+        };
+
+        // Initialize game state
+        const initializeGame = (cards) => {
+          const newGameState = {
+            currentIndex: 0,
+            maximumIndex: Object.keys(cards).length,
+            amendmentOrder: generateShuffledArray(Object.keys(cards).length),
+            correctAnswers: 0,
+            totalAttempts: 0,
+          };
+          setGameState(newGameState);
+          setPossibleOptions(
+            shuffleArray(generateShuffledArray(Object.keys(cards).length))
+          );
+        };
+
+        React.useEffect(() => {
+          // Try to fetch flashcards.json from the same directory
+          fetch("flashcards.json")
+            .then((response) => response.json())
+            .then((data) => {
+              setFlashcards(data);
+              initializeGame(data);
+            })
+            .catch((err) => {
+              console.log(
+                "No local flashcards.json found. Please load a file."
+              );
+            });
+        }, []);
+
+        const generateShuffledArray = (n) => {
+          const array = Array.from({ length: n }, (_, i) => i);
+          return shuffleArray(array);
+        };
+
+        const shuffleArray = (arr) => {
+          const array = [...arr];
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+        };
+
+        React.useEffect(() => {
+          flashcards &&
+            setPossibleOptions(
+              shuffleArray(generateShuffledArray(flashcards.length))
+            );
+        }, [flashcards]);
+
+        React.useEffect(() => {
+          if (!gameState?.amendmentOrder) return;
+
+          const shuffledIndex =
+            gameState.amendmentOrder[gameState.currentIndex];
+          setCurrentAmendmentIndex(shuffledIndex);
+
+          const optionsLeft = gameState.amendmentOrder.slice(
+            gameState.currentIndex
+          );
+          setPossibleOptions(shuffleArray(optionsLeft));
+        }, [gameState?.currentIndex]);
+
+        const handleAnswer = (event) => {
+          setUserAnswer(event.target.value);
+        };
+
+        const handleSelection = (answerIndex) => {
+          checkAnswer(answerIndex);
+        };
+
+        const toggleFlip = () => {
+          setIsFlipped(!isFlipped);
+        };
+
+        const checkAnswer = (optionalAnswerIndex = undefined) => {
+          const answerIndex =
+            optionalAnswerIndex ??
+            Object.values(amendments).findIndex(
+              (amendment) => amendment === userAnswer
+            );
+
+          const shuffledIndex =
+            gameState.amendmentOrder[gameState.currentIndex];
+          const isCorrect = shuffledIndex === answerIndex;
+
+          setGameState((prev) => ({
+            ...prev,
+            currentIndex: isCorrect ? prev.currentIndex + 1 : prev.currentIndex,
+            correctAnswers: isCorrect
+              ? prev.correctAnswers + 1
+              : prev.correctAnswers,
+            totalAttempts: prev.totalAttempts + 1,
+          }));
+
+          setAnswerState(isCorrect ? "Correct" : "Incorrect");
+        };
+
+        const startNewGame = () => {
+          setGameState(getNewGameState());
+          setAnswerState(null);
+          setIsFlipped(false);
+        };
+
+        if (!flashcards) {
+          return (
+            <div className="app-container">
+              <h1>Flashcards</h1>
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <button
+                  className="button"
+                  onClick={() => document.getElementById("jsonInput").click()}
+                >
+                  Load Flashcards File
+                </button>
+                <input
+                  type="file"
+                  id="jsonInput"
+                  accept=".json"
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                />
+                {error && (
+                  <div style={{ color: "red", marginTop: "10px" }}>{error}</div>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="app-container">
+            <h1>Review your knowledge</h1>
+
+            <details className="instructions">
+              <summary>How to Play</summary>
+              <ul>
+                <li>
+                  A flashcard will be displayed at the top of the screen with
+                  its title.
+                </li>
+                <li>
+                  <strong>If you're stuck</strong>, click the flashcard to
+                  reveal the answer!
+                </li>
+                <li>
+                  Below the flashcard, you'll see multiple options. Select the
+                  correct one that matches the revealed answer.
+                </li>
+                <li>
+                  You must choose the correct option to progress to the next
+                  flashcard.
+                </li>
+                <li>
+                  Your progress and accuracy are tracked at the top of the
+                  screen.
+                </li>
+              </ul>
+            </details>
+
+            <div className="scores-container">
+              <div className="score-item">
+                <div className="score-label">Accuracy</div>
+                <div className="score-value">
+                  {gameState.correctAnswers} / {gameState.totalAttempts}
+                  {gameState.totalAttempts > 0 &&
+                    ` (${Math.round(
+                      (gameState.correctAnswers / gameState.totalAttempts) * 100
+                    )}%)`}
+                </div>
+              </div>
+              <div className="score-item">
+                <div className="score-label">Progress</div>
+                <div className="score-value">
+                  {gameState.currentIndex} / {gameState.maximumIndex}
+                  {gameState.maximumIndex > 0 &&
+                    ` (${Math.round(
+                      (gameState.currentIndex / gameState.maximumIndex) * 100
+                    )}%)`}
+                </div>
+              </div>
+            </div>
+
+            {gameState?.currentIndex !== undefined && flashcards && (
+              <FlashCard
+                amendmentIndex={currentAmendmentIndex}
+                text={Object.values(flashcards)[currentAmendmentIndex]}
+                isFlipped={isFlipped}
+                onFlip={toggleFlip}
+                flashCards={flashcards}
+              />
+            )}
+
+            {answerState && (
+              <div className={`answer-status ${answerState.toLowerCase()}`}>
+                {answerState === "Correct" ? (
+                  <span>&#10004; Correct!</span>
+                ) : (
+                  <span>&#10007; Incorrect - Try Again</span>
+                )}
+              </div>
+            )}
+
+            <div className="options-container">
+              <div className="options-grid">
+                {possibleOptions.map((optionIndex, index) => (
+                  <div
+                    key={index}
+                    className="option-card"
+                    onClick={() => handleSelection(optionIndex)}
+                  >
+                    {Object.values(flashcards)[optionIndex]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<FlashCardApp />);
+    </script>
+  </body>
+</html>
