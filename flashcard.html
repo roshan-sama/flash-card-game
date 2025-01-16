@@ -78,7 +78,7 @@
         transform: rotateY(180deg);
       }
 
-      .amendment-number {
+      .flashcard-number {
         font-size: clamp(1.2rem, 4vw, 1.5rem);
         font-weight: bold;
         margin-bottom: 10px;
@@ -172,6 +172,9 @@
         margin-top: 20px;
         padding: 0 10px;
         box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .options-grid {
@@ -185,7 +188,10 @@
         text-align: center;
         min-height: 100px;
         padding: 15px;
+        margin: auto;
+        min-width: 280px;
         cursor: pointer;
+        max-width: 33vw;
         border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
@@ -320,7 +326,7 @@
 
     <script type="text/babel">
       const FlashCard = ({
-        amendmentIndex,
+        flashcardIndex,
         text,
         isFlipped,
         onFlip,
@@ -333,8 +339,8 @@
           >
             <div className="card-front">
               {!isFlipped && (
-                <div className="amendment-number">
-                  {Object.keys(flashCards)[amendmentIndex]}
+                <div className="flashcard-number">
+                  {Object.keys(flashCards)[flashcardIndex]}
                 </div>
               )}
             </div>
@@ -346,7 +352,7 @@
       const FlashCardApp = () => {
         const [flashcards, setFlashcards] = React.useState(null);
         const [error, setError] = React.useState(null);
-        const [currentAmendmentIndex, setCurrentAmendmentIndex] =
+        const [currentflashcardIndex, setCurrentflashcardIndex] =
           React.useState("");
         const [isFlipped, setIsFlipped] = React.useState(false);
         const [gameState, setGameState] = React.useState(null);
@@ -381,7 +387,7 @@
           const newGameState = {
             currentIndex: 0,
             maximumIndex: Object.keys(cards).length,
-            amendmentOrder: generateShuffledArray(Object.keys(cards).length),
+            flashcardOrder: generateShuffledArray(Object.keys(cards).length),
             correctAnswers: 0,
             totalAttempts: 0,
           };
@@ -414,7 +420,7 @@
         const getNewGameState = (flashcards) => ({
           currentIndex: 0,
           maximumIndex: Object.keys(flashcards).length,
-          amendmentOrder: generateShuffledArray(Object.keys(flashcards).length),
+          flashcardOrder: generateShuffledArray(Object.keys(flashcards).length),
           correctAnswers: 0,
           totalAttempts: 0,
         });
@@ -436,13 +442,13 @@
         }, [flashcards]);
 
         React.useEffect(() => {
-          if (!gameState?.amendmentOrder) return;
+          if (!gameState?.flashcardOrder) return;
 
           const shuffledIndex =
-            gameState.amendmentOrder[gameState.currentIndex];
-          setCurrentAmendmentIndex(shuffledIndex);
+            gameState.flashcardOrder[gameState.currentIndex];
+          setCurrentflashcardIndex(shuffledIndex);
 
-          const optionsLeft = gameState.amendmentOrder.slice(
+          const optionsLeft = gameState.flashcardOrder.slice(
             gameState.currentIndex
           );
           setPossibleOptions(shuffleArray(optionsLeft));
@@ -463,12 +469,12 @@
         const checkAnswer = (optionalAnswerIndex = undefined) => {
           const answerIndex =
             optionalAnswerIndex ??
-            Object.values(amendments).findIndex(
-              (amendment) => amendment === userAnswer
+            Object.values(flashcards).findIndex(
+              (flashcard) => flashcard === userAnswer
             );
 
           const shuffledIndex =
-            gameState.amendmentOrder[gameState.currentIndex];
+            gameState.flashcardOrder[gameState.currentIndex];
           const isCorrect = shuffledIndex === answerIndex;
 
           setGameState((prev) => ({
@@ -576,8 +582,8 @@
               <>
                 {gameState?.currentIndex !== undefined && flashcards && (
                   <FlashCard
-                    amendmentIndex={currentAmendmentIndex}
-                    text={Object.values(flashcards)[currentAmendmentIndex]}
+                    flashcardIndex={currentflashcardIndex}
+                    text={Object.values(flashcards)[currentflashcardIndex]}
                     isFlipped={isFlipped}
                     onFlip={toggleFlip}
                     flashCards={flashcards}
