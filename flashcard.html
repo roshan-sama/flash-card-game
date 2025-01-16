@@ -325,7 +325,7 @@
     <input
       type="file"
       id="fileInput"
-      accept=".json,.csv"
+      accept=".json,.csv,.tsv"
       style="display: none"
     />
 
@@ -406,6 +406,28 @@
           return flashcardsObj;
         };
 
+        const parseTSV = (tsvText) => {
+          const rows = tsvText.split("\n").filter((row) => row.trim());
+          const flashcardsObj = {};
+
+          for (let row of rows) {
+            // Since we assume no tabs in content, we can safely split on tabs
+            const [key, value] = row.split("\t");
+
+            if (key && value) {
+              // Clean up any quotes and whitespace
+              const cleanKey = key.replace(/^["']|["']$/g, "").trim();
+              const cleanValue = value.replace(/^["']|["']$/g, "").trim();
+
+              if (cleanKey && cleanValue) {
+                flashcardsObj[cleanKey] = cleanValue;
+              }
+            }
+          }
+
+          return flashcardsObj;
+        };
+
         const handleFileSelect = (event) => {
           const file = event.target.files[0];
           if (file) {
@@ -417,6 +439,8 @@
                   content = JSON.parse(e.target.result);
                 } else if (file.name.endsWith(".csv")) {
                   content = parseCSV(e.target.result);
+                } else if (file.name.endsWith(".tsv")) {
+                  content = parseTSV(e.target.result);
                 }
 
                 if (Object.keys(content).length === 0) {
@@ -564,18 +588,13 @@
                     className="button"
                     onClick={() => document.getElementById("fileInput").click()}
                   >
-                    Upload Flashcards (JSON or CSV)
+                    Upload Flashcards (JSON, CSV, or TSV)
                   </button>
                 </div>
-                <ol>
-                  <li>
-                    CSVs with commas in content must be wrapped in double quotes
-                  </li>
-                </ol>
                 <input
                   type="file"
                   id="fileInput"
-                  accept=".json,.csv"
+                  accept=".json,.csv,.tsv"
                   onChange={handleFileSelect}
                   style={{ display: "none" }}
                 />
@@ -583,6 +602,23 @@
                   <div style={{ color: "red", marginTop: "10px" }}>{error}</div>
                 )}
               </div>
+              <ol>
+                <li>
+                  For Comma separated value files (.csv) uploads, the content
+                  must be wrapped in double quotes if it contains commas
+                </li>
+                <li>
+                  For Tab separated value files (.tsv) cannot have tab
+                  characters in their content. Note, if using VS Code to make
+                  .tsv files, the Insert Spaces preference must be unchecked
+                  <br />
+                  <code>
+                    Editor: Insert Spaces
+                    <br /> Insert spaces when pressing Tab. This setting is
+                    overridden based on the file contents when
+                  </code>
+                </li>
+              </ol>
             </div>
           );
         }
