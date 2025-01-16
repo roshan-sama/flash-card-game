@@ -322,7 +322,12 @@
   </head>
   <body>
     <div id="root"></div>
-    <input type="file" id="jsonInput" accept=".json" style="display: none" />
+    <input
+      type="file"
+      id="fileInput"
+      accept=".json,.csv"
+      style="display: none"
+    />
 
     <script type="text/babel">
       const FlashCard = ({
@@ -360,19 +365,69 @@
         const [possibleOptions, setPossibleOptions] = React.useState([]);
         const [answerState, setAnswerState] = React.useState(null);
 
-        // Function to handle file selection
+        const parseCSV = (csvText) => {
+          const rows = csvText.split("\n").filter((row) => row.trim());
+          const flashcardsObj = {};
+
+          for (let row of rows) {
+            let key = "",
+              value = "";
+            let inQuotes = false;
+            let currentField = "";
+            let isKey = true;
+
+            for (let i = 0; i < row.length; i++) {
+              const char = row[i];
+
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === "," && !inQuotes) {
+                // End of key, start collecting value
+                key = currentField.trim();
+                currentField = "";
+                isKey = false;
+              } else {
+                currentField += char;
+              }
+            }
+
+            // Last field is the value
+            value = currentField.trim();
+
+            // Clean up any remaining quotes
+            key = key.replace(/^["']|["']$/g, "").trim();
+            value = value.replace(/^["']|["']$/g, "").trim();
+
+            if (key && value) {
+              flashcardsObj[key] = value;
+            }
+          }
+
+          return flashcardsObj;
+        };
+
         const handleFileSelect = (event) => {
           const file = event.target.files[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
               try {
-                const content = JSON.parse(e.target.result);
+                let content;
+                if (file.name.endsWith(".json")) {
+                  content = JSON.parse(e.target.result);
+                } else if (file.name.endsWith(".csv")) {
+                  content = parseCSV(e.target.result);
+                }
+
+                if (Object.keys(content).length === 0) {
+                  throw new Error("No valid data found in file");
+                }
+
                 setFlashcards(content);
                 initializeGame(content);
                 setError(null);
               } catch (err) {
-                setError("Error reading file: Invalid JSON format");
+                setError(`Error reading file: ${err.message}`);
               }
             };
             reader.onerror = () => {
@@ -504,16 +559,23 @@
             <div className="app-container">
               <h1>Flashcards</h1>
               <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <button
-                  className="button"
-                  onClick={() => document.getElementById("jsonInput").click()}
-                >
-                  Load Flashcards File
-                </button>
+                <div className="upload-buttons">
+                  <button
+                    className="button"
+                    onClick={() => document.getElementById("fileInput").click()}
+                  >
+                    Upload Flashcards (JSON or CSV)
+                  </button>
+                </div>
+                <ol>
+                  <li>
+                    CSVs with commas in content must be wrapped in double quotes
+                  </li>
+                </ol>
                 <input
                   type="file"
-                  id="jsonInput"
-                  accept=".json"
+                  id="fileInput"
+                  accept=".json,.csv"
                   onChange={handleFileSelect}
                   style={{ display: "none" }}
                 />
@@ -524,7 +586,6 @@
             </div>
           );
         }
-
         return (
           <div className="app-container">
             <h1>Review your knowledge</h1>
