@@ -123,13 +123,28 @@
         const tbody = document.querySelector("#contentTable tbody");
         const newRow = document.createElement("tr");
         newRow.innerHTML = `
-                <td><input type="text" placeholder="Enter title"></td>
-                <td><input type="text" placeholder="Enter content"></td>
-                <td class="row-actions">
-                    <button onclick="deleteRow(this)">Delete</button>
-                </td>
-            `;
+          <td><input type="text" placeholder="Enter title"></td>
+          <td><input type="text" placeholder="Enter content" onkeydown="handleKeyDown(event)"></td>
+          <td class="row-actions">
+            <button onclick="deleteRow(this)">Delete</button>
+          </td>
+        `;
         tbody.appendChild(newRow);
+        newRow.querySelector("input").focus();
+      }
+
+      function handleKeyDown(event) {
+        if (event.key === "Enter") {
+          const currentRow = event.target.closest("tr");
+          const inputs = currentRow.querySelectorAll("input");
+          const titleValue = inputs[0].value.trim();
+          const contentValue = inputs[1].value.trim();
+
+          // Only add new row if both fields in current row are filled
+          if (titleValue && contentValue) {
+            addRow();
+          }
+        }
       }
 
       function deleteRow(button) {
@@ -165,6 +180,11 @@
 
         URL.revokeObjectURL(url);
       }
+
+      // Add keydown handlers to initial row
+      document.querySelectorAll("#contentTable input").forEach((input) => {
+        input.addEventListener("keydown", handleKeyDown);
+      });
     </script>
   </body>
 </html>
