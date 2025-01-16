@@ -319,14 +319,6 @@
     <input type="file" id="jsonInput" accept=".json" style="display: none" />
 
     <script type="text/babel">
-      const getNewGameState = (flashCards) => ({
-        currentIndex: 0,
-        maximumIndex: Object.keys(flashCards).length,
-        amendmentOrder: generateShuffledArray(Object.keys(amendments).length),
-        correctAnswers: 0,
-        totalAttempts: 0,
-      });
-
       const FlashCard = ({
         amendmentIndex,
         text,
@@ -419,6 +411,14 @@
           return shuffleArray(array);
         };
 
+        const getNewGameState = (flashcards) => ({
+          currentIndex: 0,
+          maximumIndex: Object.keys(flashcards).length,
+          amendmentOrder: generateShuffledArray(Object.keys(flashcards).length),
+          correctAnswers: 0,
+          totalAttempts: 0,
+        });
+
         const shuffleArray = (arr) => {
           const array = [...arr];
           for (let i = array.length - 1; i > 0; i--) {
@@ -484,9 +484,13 @@
         };
 
         const startNewGame = () => {
-          setGameState(getNewGameState());
+          const newState = getNewGameState(flashcards);
+          setGameState(newState);
           setAnswerState(null);
           setIsFlipped(false);
+          setPossibleOptions(
+            shuffleArray(generateShuffledArray(Object.keys(flashcards).length))
+          );
         };
 
         if (!flashcards) {
@@ -568,39 +572,58 @@
               </div>
             </div>
 
-            {gameState?.currentIndex !== undefined && flashcards && (
-              <FlashCard
-                amendmentIndex={currentAmendmentIndex}
-                text={Object.values(flashcards)[currentAmendmentIndex]}
-                isFlipped={isFlipped}
-                onFlip={toggleFlip}
-                flashCards={flashcards}
-              />
-            )}
-
-            {answerState && (
-              <div className={`answer-status ${answerState.toLowerCase()}`}>
-                {answerState === "Correct" ? (
-                  <span>&#10004; Correct!</span>
-                ) : (
-                  <span>&#10007; Incorrect - Try Again</span>
+            {gameState?.currentIndex < gameState?.maximumIndex ? (
+              <>
+                {gameState?.currentIndex !== undefined && flashcards && (
+                  <FlashCard
+                    amendmentIndex={currentAmendmentIndex}
+                    text={Object.values(flashcards)[currentAmendmentIndex]}
+                    isFlipped={isFlipped}
+                    onFlip={toggleFlip}
+                    flashCards={flashcards}
+                  />
                 )}
+
+                {answerState && (
+                  <div className={`answer-status ${answerState.toLowerCase()}`}>
+                    {answerState === "Correct" ? (
+                      <span>&#10004; Correct!</span>
+                    ) : (
+                      <span>&#10007; Incorrect - Try Again</span>
+                    )}
+                  </div>
+                )}
+
+                <div className="options-container">
+                  <div className="options-grid">
+                    {possibleOptions.map((optionIndex, index) => (
+                      <div
+                        key={index}
+                        className="option-card"
+                        onClick={() => handleSelection(optionIndex)}
+                      >
+                        {Object.values(flashcards)[optionIndex]}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <h2>Congratulations! You've completed all flashcards!</h2>
+                <p>
+                  Final Score: {gameState.correctAnswers} /{" "}
+                  {gameState.totalAttempts} (
+                  {Math.round(
+                    (gameState.correctAnswers / gameState.totalAttempts) * 100
+                  )}
+                  %)
+                </p>
+                <button className="button" onClick={startNewGame}>
+                  Start New Game
+                </button>
               </div>
             )}
-
-            <div className="options-container">
-              <div className="options-grid">
-                {possibleOptions.map((optionIndex, index) => (
-                  <div
-                    key={index}
-                    className="option-card"
-                    onClick={() => handleSelection(optionIndex)}
-                  >
-                    {Object.values(flashcards)[optionIndex]}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         );
       };
