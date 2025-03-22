@@ -142,6 +142,51 @@
         width: 100%;
       }
 
+      /* Support button styles */
+      .support-container {
+        text-align: center;
+        margin: 20px 0 40px 0;
+        padding: 20px;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .support-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      .support-description {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #34495e;
+        margin-bottom: 20px;
+      }
+
+      .support-button {
+        background-color: #38b2ac;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        display: inline-block;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border: none;
+        font-size: 16px;
+      }
+
+      .support-button:hover {
+        background-color: #2c9a94;
+      }
+
       @media (max-width: 768px) {
         .games-grid {
           grid-template-columns: 1fr;
@@ -152,7 +197,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Early American History Knowledge Games</h1>
+      <h1>Early American History Knowledge Games</h1>      
 
       <div class="section">
         <h2>Declaration of Independence</h2>
@@ -199,6 +244,7 @@
         </div>
       </div>
 
+      
       <div class="section">
         <h2>The Constitution</h2>
         <p class="section-description">
@@ -245,6 +291,16 @@
           </a>
         </div>
       </div>
+
+      <!-- Support This Project Section -->
+      <div class="support-container">
+        <div class="support-title">Support This Project</div>
+        <div class="support-description">
+          These educational games are and will always remain free to use. If you find them valuable, consider supporting future development with a contribution of any amount.
+        </div>
+        <a class="support-button" href="https://buy.stripe.com/fZe5nGbVb2WHdKU288" target="_blank" rel="noreferrer noopener">Make a Contribution</a>
+      </div>
+
     </div>
   </body>
 </html>
